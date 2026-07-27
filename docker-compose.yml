@@ -1,0 +1,36 @@
+services:
+  scanner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: security-scanner
+    container_name: security-scanner
+    volumes:
+      - type: bind
+        source: ..
+        target: /workspace
+        read_only: false
+    environment:
+      - ZAP_TARGET_URL=${ZAP_TARGET_URL:-http://host.docker.internal:8000}
+
+  zap:
+    image: ghcr.io/zaproxy/zaproxy:stable
+    container_name: security-zap
+    profiles: [zap]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: >
+      zap-full-scan.py
+      -t ${ZAP_TARGET_URL:-http://host.docker.internal:8000}
+      --hook /workspace/security/zap_hook.py
+      -r /zap/wrk/zap_report.html
+      -w /zap/wrk/zap_report.md
+      -J /zap/wrk/zap_report.json
+      -x /zap/wrk/zap_report.xml
+    volumes:
+      - ./output:/zap/wrk
+      - ..:/workspace:ro
+    environment:
+      - ZAP_TARGET_URL=${ZAP_TARGET_URL:-http://host.docker.internal:8000}
+      - ZAP_USERNAME=${ZAP_USERNAME:-}
+      - ZAP_PASSWORD=${ZAP_PASSWORD:-}
