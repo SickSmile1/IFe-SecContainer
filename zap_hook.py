@@ -1,7 +1,6 @@
 import os
-import json
-import urllib.request
 import urllib.parse
+import urllib.request
 
 BASE_URL = os.environ.get("ZAP_TARGET_URL", "http://host.docker.internal:8000")
 OPENAPI_URL = os.environ.get("ZAP_OPENAPI_URL", f"{BASE_URL}/openapi.json")
